@@ -1,0 +1,7 @@
+{
+  "name": "@mmtr/hashcode2018",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node test/main.js"
+  }
+}
