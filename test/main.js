@@ -30,10 +30,9 @@ class Slice {
   }
 
   isContainingEnoughIngredients(minIngredients) {
-    let ingredients = {
-      TOMATO: 0,
-      MUSHROOM: 0,
-    };
+    let ingredients = {};
+    ingredients[TOMATO] = 0;
+    ingredients[MUSHROOM] = 0;
 
     this.cells.forEach(row => {
       row.forEach(column => {
