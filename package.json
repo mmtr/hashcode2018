@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "node test/main.js",
-    "qualification": "node qualification/main.js"
+    "qualification": "node qualification/main.js",
+    "extended": "node extended/main.js"
   }
 }
