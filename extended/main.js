@@ -107,10 +107,6 @@ class Ride {
     this.earliestStart = parseInt(words[4]);
     this.latestFinish = parseInt(words[5]);
   }
-
-  get distance() {
-    return Math.abs(this.start.row - this.end.row) + Math.abs(this.start.column - this.end.column);
-  }
 }
 
 class SelfDrivingRides {
@@ -140,27 +136,42 @@ class SelfDrivingRides {
     freeVehicles.forEach(vehicle => {
       if (this.rides.length) {
         const ride = this.rides.sort((ride1, ride2) => {
-          const stepsWaiting1 = ride1.earliestStart - step - this.distance(vehicle.position, ride1.start);
-          const stepsWaiting2 = ride2.earliestStart - step - this.distance(vehicle.position, ride2.start);
-
-          if (stepsWaiting1 === 0) {
-            return -1;
-          } else if (stepsWaiting2 === 0) {
-            return 1;
-          } else if (stepsWaiting1 > 0 && stepsWaiting2 < 0) {
-            return stepsWaiting1;
-          } else if (stepsWaiting2 > 0 && stepsWaiting1 < 0) {
-            return stepsWaiting2;
-          } else if (stepsWaiting1 > 0 && stepsWaiting2 > 0) {
-            return stepsWaiting1 - stepsWaiting2;
-          } else if (stepsWaiting1 < 0 && stepsWaiting2 < 0) {
-            return stepsWaiting2 - stepsWaiting1;
-          }
+          return this.rideScore(ride2, vehicle, step) - this.rideScore(ride1, vehicle, step);
         }).shift();
 
         vehicle.addRide(ride);
       }
     });
+  }
+
+  rideScore(ride, vehicle, step) {
+    let score = 0;
+
+    const vehicleDistance = this.distance(vehicle.position, ride.start);
+    const vehicleWaiting = ride.earliestStart - step - vehicleDistance;
+    const rideDistance = this.distance(ride.start, ride.end);
+    const rideEndStep = step + vehicleDistance + rideDistance;
+    const rideStepsBeforeLatestFinish = ride.latestFinish - rideEndStep;
+
+    score -= vehicleDistance;
+
+    if (vehicleWaiting === 0) {
+      score += this.bonus * rideDistance;
+    } else if (vehicleWaiting > 0) {
+      score -= vehicleWaiting;
+    } else if (vehicleWaiting < 0) {
+      score -= 2 * Math.abs(vehicleWaiting);
+    }
+
+    score += rideDistance;
+
+    if (rideStepsBeforeLatestFinish <= 0) {
+      score += 2 * rideStepsBeforeLatestFinish;
+    } else {
+      score -= Number.MAX_SAFE_INTEGER;
+    }
+
+    return score;
   }
 
   simulate() {
